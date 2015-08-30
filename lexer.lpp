@@ -7,26 +7,32 @@
 
 %%
 
-true                     return TRUE;
-false                    return FALSE;
-[a-z][a-zA-Z_0-9]*       yylval.str_attr = new string(yytext); return SYMBOL;
-[A-Z][a-zA-Z_0-9]*       yylval.str_attr = new string(yytext); return VARIABLE;
-\(                       return *yytext;
-\)                       return *yytext;
-,			 return *yytext;
-&                        return AND;
-\|			 return OR;
-=\>                      return IMP;
-\<=\>                    return IFF;
-~			 return NOT;
-=			 return EQ;
-~=			 return NEQ;
-!			 return FORALL;
-\?			 return EXISTS;
-\[                       return *yytext;
-\]                       return *yytext;
-:                        return *yytext;
-;                        return *yytext;
+true                                                       return TRUE;
+false                                                      return FALSE;
+[a-z][a-zA-Z_0-9]*                                         yylval.str_attr = new string(yytext); return SYMBOL;
+(([2-9][0-9]*)?[A-Z][a-zA-Z_0-9]*)|(0|[1-9][0-9]*)         yylval.str_attr = new string(yytext); return VARIABLE;
+\(                                                         return *yytext;
+\)                                                         return *yytext;
+,			                                               return *yytext;
+&                                                          return AND;
+\|			                                               return OR;
+=\>                                                        return IMP;
+\<=\>                                                      return IFF;
+~			                                               return NOT;
+=			                                               return EQ;
+~=			                                               return NEQ;
+\<=                                                        return LESSEQ;
+\<                                                         return LESS;
+\>=                                                        return GREATEREQ;
+\>                                                         return GREATER;
+!			                                               return FORALL;
+\?			                                               return EXISTS;
+\[                                                         return *yytext;
+\]                                                         return *yytext;
+:                                                          return *yytext;
+;                                                          return *yytext;
+-                                                          return *yytext;
+\+                                                         return *yytext;
 [ \t\n]
 
 %%

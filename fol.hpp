@@ -18,8 +18,8 @@ class BaseTerm;
 typedef shared_ptr<BaseTerm> Term;
 
 
-class BaseTerm : public enable_shared_from_this<BaseTerm> {
-
+class BaseTerm : public enable_shared_from_this<BaseTerm>
+{
 public:
   enum Type { TT_VARIABLE, TT_FUNCTION };
   virtual Type getType() const = 0;
@@ -27,9 +27,11 @@ public:
   virtual ~BaseTerm() {}
 };
 
-class VariableTerm : public BaseTerm {
+class VariableTerm : public BaseTerm
+{
 private:
   Variable _v;
+
 public:
   VariableTerm(const Variable & v)
     :_v(v)
@@ -44,14 +46,16 @@ public:
   {
     return _v;
   }
+
   virtual void printTerm(ostream & ostr) const
   {
     ostr << _v;
   }
 };
 
-class FunctionTerm : public BaseTerm {
-private:
+class FunctionTerm : public BaseTerm
+{
+protected:
   FunctionSymbol _f;
   vector<Term> _ops;
 
@@ -94,11 +98,67 @@ public:
   }
 };
 
+class Addition : public FunctionTerm
+{
+public:
+  Addition(const Term & lop, const Term rop)
+    : FunctionTerm("+", vector<Term> ())
+    {
+        _ops.push_back(lop);
+        _ops.push_back(rop);
+    }
+
+    const Term & getLeftOperand() const
+    {
+      return _ops[0];
+    }
+    
+    const Term & getRightOperand() const
+    {
+      return _ops[1];
+    }
+    
+    virtual void printTerm(ostream & ostr) const
+    {
+      _ops[0]->printTerm(ostr);
+      ostr << " + ";
+      _ops[1]->printTerm(ostr);
+    }
+};
+
+class Subtraction : public FunctionTerm
+{
+public:
+    Subtraction(const Term & lop, const Term rop)
+    : FunctionTerm("-", vector<Term> ())
+    {
+        _ops.push_back(lop);
+        _ops.push_back(rop);
+    }
+
+    const Term & getLeftOperand() const
+    {
+      return _ops[0];
+    }
+    
+    const Term & getRightOperand() const
+    {
+      return _ops[1];
+    }
+    
+    virtual void printTerm(ostream & ostr) const
+    {
+      _ops[0]->printTerm(ostr);
+      ostr << " - ";
+      _ops[1]->printTerm(ostr);
+    }
+};
+
 class BaseFormula;
 typedef shared_ptr<BaseFormula> Formula;
 
-class BaseFormula : public enable_shared_from_this<BaseFormula> {
-  
+class BaseFormula : public enable_shared_from_this<BaseFormula>
+{
 public:
 
   enum Type { T_TRUE, T_FALSE, T_ATOM, T_NOT, 
@@ -109,21 +169,18 @@ public:
   virtual ~BaseFormula() {}
 };
 
-
-
-class AtomicFormula : public BaseFormula {
+class AtomicFormula : public BaseFormula
+{
 public:
 };
 
-
-class LogicConstant : public AtomicFormula {
-
+class LogicConstant : public AtomicFormula
+{
 public:
 };
 
-
-class True : public LogicConstant {
-
+class True : public LogicConstant
+{
 public:
   virtual void printFormula(ostream & ostr) const
   {
@@ -134,12 +191,11 @@ public:
   {
     return T_TRUE;
   }
-
 };
 
 
-class False : public LogicConstant {
-
+class False : public LogicConstant
+{
 public:
   virtual void printFormula(ostream & ostr) const
   {
@@ -153,7 +209,8 @@ public:
 };
 
 
-class Atom : public AtomicFormula {
+class Atom : public AtomicFormula
+{
 protected:
   PredicateSymbol _p;
   vector<Term> _ops;
@@ -194,10 +251,10 @@ public:
   {
     return T_ATOM;
   }
-
 };
 
-class Equality : public Atom {
+class Equality : public Atom
+{
 public:
   Equality(const Term & lop, const Term & rop)
     :Atom("=", vector<Term> ())
@@ -224,7 +281,8 @@ public:
   }
 };
 
-class Disequality : public Atom {
+class Disequality : public Atom
+{
 public:
   Disequality(const Term & lop, const Term & rop)
     :Atom("~=", vector<Term> ())
@@ -252,10 +310,127 @@ public:
   }
 };
 
+class Less : public Atom
+{
+public:
+  Less(const Term & lop, const Term & rop)
+    : Atom("<", vector<Term> ())
+  {
+    _ops.push_back(lop);
+    _ops.push_back(rop);
+  }
+  
+  const Term & getLeftOperand() const
+  {
+    return _ops[0];
+  }
+  
+  const Term & getRightOperand() const
+  {
+    return _ops[1];
+  }
 
-class UnaryConjective : public BaseFormula {
+  virtual void printFormula(ostream & ostr) const
+  {
+
+    _ops[0]->printTerm(ostr);
+    ostr << " < ";
+    _ops[1]->printTerm(ostr);
+  }
+};
+
+class LessEquals : public Atom
+{
+public:
+  LessEquals(const Term & lop, const Term & rop)
+    : Atom("<=", vector<Term> ())
+  {
+    _ops.push_back(lop);
+    _ops.push_back(rop);
+  }
+  
+  const Term & getLeftOperand() const
+  {
+    return _ops[0];
+  }
+  
+  const Term & getRightOperand() const
+  {
+    return _ops[1];
+  }
+
+  virtual void printFormula(ostream & ostr) const
+  {
+
+    _ops[0]->printTerm(ostr);
+    ostr << " <= ";
+    _ops[1]->printTerm(ostr);
+  }
+};
+
+class Greater : public Atom
+{
+public:
+  Greater(const Term & lop, const Term & rop)
+    : Atom(">", vector<Term> ())
+  {
+    _ops.push_back(lop);
+    _ops.push_back(rop);
+  }
+  
+  const Term & getLeftOperand() const
+  {
+    return _ops[0];
+  }
+  
+  const Term & getRightOperand() const
+  {
+    return _ops[1];
+  }
+
+  virtual void printFormula(ostream & ostr) const
+  {
+
+    _ops[0]->printTerm(ostr);
+    ostr << " > ";
+    _ops[1]->printTerm(ostr);
+  }
+};
+
+class GreaterEquals : public Atom
+{
+public:
+  GreaterEquals(const Term & lop, const Term & rop)
+    : Atom(">=", vector<Term> ())
+  {
+    _ops.push_back(lop);
+    _ops.push_back(rop);
+  }
+  
+  const Term & getLeftOperand() const
+  {
+    return _ops[0];
+  }
+  
+  const Term & getRightOperand() const
+  {
+    return _ops[1];
+  }
+
+  virtual void printFormula(ostream & ostr) const
+  {
+
+    _ops[0]->printTerm(ostr);
+    ostr << " >= ";
+    _ops[1]->printTerm(ostr);
+  }
+};
+
+class UnaryConjective : public BaseFormula
+{
 protected:
    Formula _op;
+
 public:
   UnaryConjective(const Formula & op)
     :_op(op)
@@ -267,7 +442,8 @@ public:
   }
 };
 
-class Not : public UnaryConjective {
+class Not : public UnaryConjective
+{
 public:
   Not(const Formula & op)
     :UnaryConjective(op)
@@ -296,9 +472,11 @@ public:
 };
 
 
-class BinaryConjective : public BaseFormula {
+class BinaryConjective : public BaseFormula
+{
 protected:
    Formula _op1, _op2;
+
 public:
   BinaryConjective(const Formula & op1, const Formula & op2)
     :_op1(op1),
@@ -317,7 +495,8 @@ public:
 };
 
 
-class And : public BinaryConjective {
+class And : public BinaryConjective
+{
 public:
   And(const Formula & op1, const Formula & op2)
     :BinaryConjective(op1, op2)
@@ -355,11 +534,10 @@ public:
   {
     return T_AND;
   }
- };
+};
 
-
-
-class Or : public BinaryConjective {
+class Or : public BinaryConjective
+{
 public:
   Or(const Formula & op1, const Formula & op2)
     :BinaryConjective(op1, op2)
@@ -399,7 +577,8 @@ public:
 };
 
 
-class Imp : public BinaryConjective {
+class Imp : public BinaryConjective
+{
 public:
   Imp(const Formula & op1, const Formula & op2)
     :BinaryConjective(op1, op2)
@@ -438,8 +617,8 @@ public:
 
 
 
-class Iff : public BinaryConjective {
-
+class Iff : public BinaryConjective
+{
 public:
   Iff(const Formula & op1, const Formula & op2)
     :BinaryConjective(op1, op2)
@@ -472,10 +651,12 @@ public:
 };
 
 
-class Quantifier : public BaseFormula {
+class Quantifier : public BaseFormula
+{
 protected:
   Variable _v;
   Formula  _op;
+
 public:
   Quantifier(const Variable & v, const Formula & op)
     :_v(v),
@@ -491,10 +672,10 @@ public:
   {
     return _op;
   }
-
 };
 
-class Forall : public Quantifier {
+class Forall : public Quantifier
+{
 public:
   Forall(const Variable & v, const Formula & op)
     :Quantifier(v, op)
@@ -522,7 +703,8 @@ public:
   }
 };
 
-class Exists : public Quantifier {
+class Exists : public Quantifier
+{
 public:
   Exists(const Variable & v, const Formula & op)
     :Quantifier(v, op)

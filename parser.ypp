@@ -23,6 +23,10 @@ Formula parsed_formula;
 %token IFF;
 %token EQ;
 %token NEQ;
+%token LESS;
+%token LESSEQ;
+%token GREATER;
+%token GREATEREQ;
 %token FORALL;
 %token EXISTS;
 
@@ -44,6 +48,8 @@ Formula parsed_formula;
   BaseTerm * term_attr;
   vector<Term> * term_seq_attr;
 }
+
+%left '+' '-'
 
 %%
 
@@ -163,6 +169,22 @@ atom : SYMBOL
      {
        $$ = new Disequality(Term($1), Term($3));
      }
+     | term LESS term
+     {
+       $$ = new Less(Term($1), Term($3));
+     }
+     | term LESSEQ term
+     {
+       $$ = new LessEquals(Term($1), Term($3));
+     }
+     | term GREATER term
+     {
+       $$ = new Greater(Term($1), Term($3));
+     }
+     | term GREATEREQ term
+     {
+       $$ = new GreaterEquals(Term($1), Term($3));
+     }
      ;
 
 term_seq : term_seq ',' term
@@ -177,22 +199,30 @@ term_seq : term_seq ',' term
 	 }
 	 ;
 
-term : VARIABLE
-     {
-       $$ = new VariableTerm(*$1);
-       delete $1;
-     }
-     | SYMBOL
-     {
-       $$ = new FunctionTerm(*$1);
-       delete $1;
-     }
-     | SYMBOL '(' term_seq ')'
-     {
-       $$ = new FunctionTerm(*$1, *$3);
-       delete $1;
-       delete $3;
-     }
-     ;
+term : term '+' term
+       {
+           $$ = new Addition(Term($1), Term($3));
+       }
+       | term '-' term
+       {
+           $$ = new Subtraction(Term($1), Term($3));
+       }
+       | VARIABLE
+       {
+           $$ = new VariableTerm(*$1);
+           delete $1;
+       }
+       | SYMBOL
+       {
+            $$ = new FunctionTerm(*$1);
+            delete $1;
+       }
+       | SYMBOL '(' term_seq ')'
+       {
+        $$ = new FunctionTerm(*$1, *$3);
+        delete $1;
+        delete $3;
+       }
+       ;
 
 %%

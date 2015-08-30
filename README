@@ -38,6 +38,9 @@ Sintaksa koju parser prihvata:
    3a) <var>			-- varijabla
    3b) <symbol>			-- konstanta
    3c) <symbol>(<term_seq>)	-- slozeni term
+   
+   3d) <var> + <var>
+   3d) <var> - <var>
 
 4) <atomic_formula> je:
    4a) true			-- kljucna rec koja oznacava "Te"
@@ -46,6 +49,11 @@ Sintaksa koju parser prihvata:
    4d) <symbol>(<term_seq>)	-- slozeni atom
    4e) <term> = <term>  	-- jednakost
    4f) <term> ~= <term> 	-- razlicitost
+
+   4g) <term> < <term>      -- manje
+   4h) <term> <= <term>     -- manje jednako
+   4i) <term> > <term>      -- vece
+   4j) <term> >= <term>     -- vece jednako
 
 5) <term_seq> je :
    5a) <term>			-- jedan term
